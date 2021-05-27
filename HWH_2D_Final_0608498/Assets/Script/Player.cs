@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class Player : MonoBehaviour
 {
@@ -28,6 +29,18 @@ public class Player : MonoBehaviour
     public Animator ani;
     [Header("偵測範圍")]
     public float rangeAttack = 2.5f;
+    [Header("血量")]
+    public float hp = 200;
+    [Header("血條系統")]
+    public HpManager hpManager;
+    [Header("攻擊力"), Range(0, 1000)]
+    public float attack = 20;
+    [Header("音效來源")]
+    public AudioSource aud;
+    [Header("攻擊音效")]
+    public AudioClip soundAttack;
+
+    private float hpMax;
 
     //事件：繪製圖示
     private void OnDrawGizmos()
@@ -48,6 +61,8 @@ public class Player : MonoBehaviour
 
     private void Move()
     {
+        if (isDead) return;               //如果死亡就跳出
+
         print("移動");
 
         float h = joystick.Horizontal;
@@ -59,9 +74,13 @@ public class Player : MonoBehaviour
 
 
     }
-
+    //要被按鈕呼叫必須設為公開
     public void Attack()
     {
+        if (isDead) return;              //如果死亡就跳出 
+
+        aud.PlayOneShot(soundAttack, 0.1f);
+
 
         print("攻擊");
 
@@ -69,23 +88,47 @@ public class Player : MonoBehaviour
         RaycastHit2D hit = Physics2D.CircleCast(transform.position, rangeAttack, -transform.up, 0, 1 << 8);
 
         if (hit && hit.collider.tag == "道具") hit.collider.GetComponent<Item>().DropProp();
+        if (hit && hit.collider.tag == "敵人") hit.collider.GetComponent<Enemy>().Hit(attack);
 
     }
-    private void Hit()
+
+    //要被其他腳本呼叫也要設定為公開
+    /// <summary>
+    /// 受傷
+    /// </summary>
+    /// <param name="damage">接收到的傷害值</param>
+    public void Hit(float damage)
     {
+        hp -= damage;                                    //扣除傷害值
+        hpManager.UpdateHpBar(hp, hpMax);                //更新血條
+        StartCoroutine(hpManager.ShowDamage(damage));    //啟動協同程序
 
+        if(hp <= 0) Dead();                              //如果血量<=0就死亡
     }
+
+    /// <summary>
+    /// 死亡
+    /// </summary>
     private void Dead()
     {
+        hp = 0;
+        isDead = true;
+        Invoke("Replay", 2);
+    }
 
+    /// <summary>
+    /// 重新遊戲
+    /// </summary>
+    private void Replay()
+    {
+        SceneManager.LoadScene("遊戲場景");
     }
 
     //事件-特定時間會執行的方法
     //開始事件：撥放後執行一次
     private void Start()
     {
-        //呼叫方法
-        //方法名稱();
+        hpMax = hp;       //取得血量最大值
 
     }
     //更新事件：大約一秒執行六十次 60FPS
