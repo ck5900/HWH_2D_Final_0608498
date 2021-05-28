@@ -1,0 +1,16 @@
+{
+"companyName": "0608498",
+"productName": "2D_Final_0608498",
+"productVersion": "0.1",
+"dataUrl": "Web2.data.unityweb",
+"wasmCodeUrl": "Web2.wasm.code.unityweb",
+"wasmFrameworkUrl": "Web2.wasm.framework.unityweb",
+"graphicsAPI": ["WebGL 2.0","WebGL 1.0"],
+"webglContextAttributes": {"preserveDrawingBuffer": false},
+"splashScreenStyle": "Dark",
+"backgroundColor": "#231F20",
+"cacheControl": {"default": "must-revalidate"},
+"developmentBuild": false,
+"multithreading": false,
+"unityVersion": "2019.4.10f1"
+}
